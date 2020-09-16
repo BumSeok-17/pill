@@ -32,18 +32,21 @@ from keras.callbacks import TensorBoard
 from keras.models import load_model
 
 def set_keras_backend(backend):
-    print("A acertar o backend e libertar memória da grafica")
     if K.backend() != backend:
         os.environ['KERAS_BACKEND'] = backend
         importlib.reload(K)
         assert K.backend() == backend
     if backend == "tensorflow":
-        K.get_session().close()
-        cfg = tf.ConfigProto()
+        '''K.get_session().close()
+        cfg = tf.compat.v1.ConfigProto()
         cfg.gpu_options.allow_growth = True
         #cfg.gpu_options.allocator_type = 'BFC'
         K.set_session(tf.Session(config=cfg))
-        K.clear_session()
+        K.clear_session()'''
+        cfg = tf.compat.v1.ConfigProto()
+        cfg.gpu_options.allow_growth = True
+        #cfg.gpu_options.allocator_type = 'BFC'
+        tf.config=cfg
 
 def get_arguments():
     ap = argparse.ArgumentParser()
@@ -207,7 +210,6 @@ def compile_train_model(data_augmentation):
     f.write(pickle.dumps(lb))
     f.close()
 
-    #   Avaliação   final   com os  casos   de  teste  - Evaluate
     scores  =   model.evaluate(testX,  testY, verbose=1)  
     print('Scores:  ',  scores) 
     print("Accuracy:    %.2f%%" %   (scores[1]*100))    
